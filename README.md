@@ -65,3 +65,25 @@ Isso deverá abrir a aplicação no seu navegador padrão.
 *   [Requests](https://requests.readthedocs.io/): Para realizar requisições HTTP.
 *   [Beautiful Soup 4](https://www.crummy.com/software/BeautifulSoup/bs4/doc/): Para fazer o parsing do HTML.
 *   [Pandas](https://pandas.pydata.org/): Para manipulação e estruturação dos dados.
+
+## Detalhes da Saída (CSV)
+
+Os dados coletados podem ser baixados como um arquivo CSV (`books_all_pages.csv`). Este arquivo possui as seguintes características:
+*   **Delimitador:** Ponto e vírgula (`;`)
+*   **Encoding:** UTF-8 com BOM (Byte Order Mark), o que geralmente garante boa compatibilidade com softwares como Microsoft Excel.
+*   **Principais Colunas:** `name`, `rate` (avaliação textual), `value` (preço com símbolo da moeda), `url` (link direto para a página do livro), `upc`, `product type`, `price (excl. tax)`, `price (incl. tax)`, `tax`, `availability`, `number of reviews`.
+
+## Solução de Problemas (Troubleshooting)
+
+*   **Falha na Raspagem:**
+    *   Verifique sua conexão com a internet.
+    *   O site `books.toscrape.com` pode estar temporariamente indisponível. Tente novamente mais tarde.
+    *   Em cenários de scraping mais intensos (não aplicável aqui), o IP poderia ser bloqueado.
+*   **Caracteres Estranhos no CSV:**
+    *   O arquivo CSV é gerado em UTF-8. Certifique-se de que o software que você está usando para abrir o CSV está interpretando este encoding corretamente. A inclusão do BOM visa ajudar nisso.
+*   **Erro ao executar `streamlit run main.py`:**
+    *   Certifique-se de que você ativou o ambiente virtual (`venv`) e instalou todas as dependências listadas em `requirements.txt`.
+
+## Licença
+
+Este projeto é distribuído sob os termos da Licença MIT. Veja o arquivo `LICENSE.md` para mais detalhes.

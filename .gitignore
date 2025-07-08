@@ -63,3 +63,7 @@ coverage.xml
 *.swp
 *.swo
 *~
+
+# Operating system / Cache files
+.DS_Store
+Thumbs.db
