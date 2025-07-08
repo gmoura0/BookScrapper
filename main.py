@@ -32,7 +32,8 @@ def scrape_book_details(book_url, session):
     Usa uma sessão para reaproveitar conexões.
     """
     res = session.get(book_url, headers=HEADERS)  # requisição GET da URL do livro
-    soup = BeautifulSoup(res.text, 'html.parser')  # parse do HTML
+    res.raise_for_status() # Adicionar para checar erros HTTP
+    soup = BeautifulSoup(res.content, 'html.parser')  # parse do HTML # Usar res.content
     table = soup.find("table", class_="table table-striped")  # encontra a tabela de detalhes
     # inicializa dicionário com chaves vazias
     details = {k: "" for k in [
@@ -58,10 +59,11 @@ def scrape_all_pages():
     while True:
         url = CATALOGUE_URL + f"page-{page}.html"  # URL da página atual
         res = session.get(url, headers=HEADERS)  # requisição para a página
-        if res.status_code != 200:
+        if res.status_code != 200: # Manter esta checagem, pois raise_for_status() não é ideal para o loop de paginação
             break  # interrompe loop se não existir mais página
 
-        soup = BeautifulSoup(res.text, 'html.parser')
+        # res.raise_for_status() # Não usar aqui para permitir que o loop termine em 404
+        soup = BeautifulSoup(res.content, 'html.parser') # Usar res.content
         articles = soup.find_all("article", class_="product_pod")  # lista de livros
         if not articles:
             break  # interrompe se não encontrar nenhum livro
@@ -70,7 +72,8 @@ def scrape_all_pages():
             # extrai dados básicos do livro
             name = art.h3.a["title"]
             rate = get_rating(art)
-            price = art.find("p", class_="price_color").text.strip().replace("Â", "")
+            price_element = art.find("p", class_="price_color")
+            price = price_element.text.strip() if price_element else "N/A" # Remover .replace("Â", "") e adicionar checagem
             rel = art.h3.a["href"].replace("../../../", "")
             full_url = CATALOGUE_URL + rel
             # detalhes adicionais via scrape_book_details
@@ -155,6 +158,9 @@ if st.session_state.get("books"):
     df["Link"] = df["url"].apply(lambda u: f'<a href="{u}" target="_blank">Abrir</a>')
     df_display = df.drop(columns=["url"])  # remove coluna de URL bruta
 
+    # Prepara DataFrame para CSV sem a coluna de Link HTML
+    df_for_csv = df.drop(columns=["Link"])
+
     # CSS minimalista para inputs e tabela
     css = """
     <style>
@@ -212,7 +218,7 @@ if st.session_state.get("books"):
     components.html(html, height=600, scrolling=True)  # renderiza HTML personalizado
 
     # Botão de download do CSV resultante
-    csv = convert_df_to_csv(df)
+    csv = convert_df_to_csv(df_for_csv) # Usar df_for_csv que não tem a coluna Link HTML
     st.download_button(
         "📥 Baixar CSV",
         data=csv,
